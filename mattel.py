@@ -16,7 +16,7 @@
 
 import hid
 import time
-from Xlib import X, display
+from Xlib import X, display, ext 
 
 class Pen:
     def __init__(self):
@@ -134,12 +134,20 @@ class Mattel:
 
 class Screen:
     def __init__(self):
+        # Max pointer size
+        max_x = 1022
+        max_y = 766
+        # Read from xlib
         self.display = display.Display()
         self.screen = self.display.screen()
         self.root = self.screen.root
+        self.ar_x = self.screen.width_in_pixels / max_x 
+        self.ar_y = self.screen.height_in_pixels / max_y
 
     def update(self, mattel_data):
-        self.root.warp_pointer(mattel_data.pen.x, mattel_data.pen.y)
+        self.root.warp_pointer(int(self.ar_x * mattel_data.pen.x), int(self.ar_y * mattel_data.pen.y))
+        event = X.ButtonPress if mattel_data.pen.click else X.ButtonRelease
+        ext.xtest.fake_input(self.display, event, 1)
         self.display.sync()
 
 if __name__ == '__main__':
