@@ -17,7 +17,6 @@
 import hid
 import time
 
-
 class Pen:
     def __init__(self):
         self.click = False
@@ -136,13 +135,17 @@ class Mattel:
 if __name__ == '__main__':
     mattel = Mattel()
     mattel.open()
+
     for i in range(0, 4):
         mattel.set_led(i, True)
-        time.sleep(0.1)
+        time.sleep(0.2)
         mattel.set_led(i, False)
 
     while True:
         mattel.read()
+        for i in range(0, 4):
+            mattel.set_led(i, mattel.data.buttons[i])
+
         print(''.join([str(button)[0] for button in mattel.data.buttons]) +
               " {} {} {}".format(mattel.data.pen.click,
                                  mattel.data.pen.x,
