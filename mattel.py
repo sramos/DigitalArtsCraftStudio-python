@@ -16,6 +16,7 @@
 
 import hid
 import time
+from Xlib import X, display
 
 class Pen:
     def __init__(self):
@@ -131,8 +132,19 @@ class Mattel:
                     (self.leds[2] << 2) +
                     (self.leds[3] << 3)])
 
+class Screen:
+    def __init__(self):
+        self.display = display.Display()
+        self.screen = self.display.screen()
+        self.root = self.screen.root
+
+    def update(self, mattel_data):
+        self.root.warp_pointer(mattel_data.pen.x, mattel_data.pen.y)
+        self.display.sync()
 
 if __name__ == '__main__':
+    screen = Screen()
+
     mattel = Mattel()
     mattel.open()
 
@@ -143,9 +155,15 @@ if __name__ == '__main__':
 
     while True:
         mattel.read()
+
+        # Switch led buttons
         for i in range(0, 4):
             mattel.set_led(i, mattel.data.buttons[i])
 
+        # Move mouse
+        screen.update(mattel.data)
+
+        # Print table status
         print(''.join([str(button)[0] for button in mattel.data.buttons]) +
               " {} {} {}".format(mattel.data.pen.click,
                                  mattel.data.pen.x,
